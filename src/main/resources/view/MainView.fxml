@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="destinationCity" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.MainViewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label layoutX="227.0" layoutY="31.0" prefHeight="17.0" prefWidth="147.0" text="WeatherAPP">
          <font>
@@ -15,8 +15,10 @@
       </Label>
       <Button layoutX="274.0" layoutY="321.0" mnemonicParsing="false" onAction="#test" text="Button" />
       <TextField fx:id="homeCity" layoutX="52.0" layoutY="122.0" />
-      <TextField layoutX="374.0" layoutY="122.0" />
+      <TextField fx:id="destinationCity" layoutX="374.0" layoutY="122.0" />
       <Label layoutX="52.0" layoutY="85.0" text="Select Home City" />
       <Label layoutX="374.0" layoutY="85.0" text="Select Destination City" />
+      <Label fx:id="temperature" layoutX="52.0" layoutY="192.0" text="text" />
+      <Label fx:id="temperatureLabel" layoutX="52.0" layoutY="168.0" text="Temperature" />
    </children>
 </AnchorPane>
