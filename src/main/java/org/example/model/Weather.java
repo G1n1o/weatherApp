@@ -9,11 +9,15 @@ public class Weather {
     private final String cityName;
     private final double tempInCelsius;
     private LocalDate date;
+    private final String weatherCode;
 
-    public Weather(String cityName, double tempInCelsius, LocalDate date) {
+
+
+    public Weather(String cityName, double tempInCelsius, LocalDate date, String weatherCode) {
         this.cityName = cityName;
         this.tempInCelsius = tempInCelsius;
         this.date = date;
+        this.weatherCode = weatherCode;
     }
 
     public String getCityName() {
@@ -26,6 +30,10 @@ public class Weather {
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public String getWeatherCode() {
+        return weatherCode;
     }
 
     @Override

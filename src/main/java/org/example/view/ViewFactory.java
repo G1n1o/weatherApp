@@ -40,7 +40,9 @@ public class ViewFactory {
 
         scene.getStylesheets().add(getClass().getResource("/view/css/styles.css").toExternalForm());
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
+
 
     }
 }
