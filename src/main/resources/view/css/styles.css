@@ -10,5 +10,23 @@
 .days_background{
     -fx-background-color: #293642;
     -fx-background-radius: 50;
-    }
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+}
+#weeklyForecastContainer {
+    -fx-spacing: 10;
+}
+
+.firstDay_temperature {
+    -fx-font-size: 42px;
+    -fx-text-fill: white;
+}
+.otherDays_temperature {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+}
+
+
 

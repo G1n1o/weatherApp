@@ -2,6 +2,8 @@ package org.example.model.client;
 
 import org.example.model.Weather;
 
+import java.util.List;
+
 public interface WeatherClient {
-    public Weather getWeather(String cityName);
+    List<Weather> getWeeklyWeather(String cityName);
 }

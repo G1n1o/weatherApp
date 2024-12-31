@@ -39,14 +39,14 @@ public class MainViewController extends BaseController implements Initializable 
     }
 
     @FXML
-    void test() {
-        System.out.println("Click!");
-
-        String cityName = "Kalisz";
-        Weather weather = weatherService.getWeather(cityName);
-
-        displayWeather(weather);
-    }
+//    void test() {
+//        System.out.println("Click!");
+//
+//        String cityName = "Kalisz";
+//        Weather weather = weatherService.getWeather(cityName);
+//
+//        displayWeather(weather);
+//    }
 
     private void displayWeather(Weather weather) {
         temperature.setVisible(true);

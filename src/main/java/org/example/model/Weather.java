@@ -2,6 +2,8 @@ package org.example.model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Weather {
@@ -9,15 +11,15 @@ public class Weather {
     private final String cityName;
     private final double tempInCelsius;
     private LocalDate date;
-    private final String weatherCode;
+    private final String weatherCondition;
 
 
 
-    public Weather(String cityName, double tempInCelsius, LocalDate date, String weatherCode) {
+    public Weather(String cityName, double tempInCelsius, LocalDate date, String weatherCondition) {
         this.cityName = cityName;
         this.tempInCelsius = tempInCelsius;
         this.date = date;
-        this.weatherCode = weatherCode;
+        this.weatherCondition = weatherCondition;
     }
 
     public String getCityName() {
@@ -28,12 +30,14 @@ public class Weather {
         return tempInCelsius;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public String getDayOfWeek() {
+        return date.getDayOfWeek()
+                .getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+                .toUpperCase();
     }
 
-    public String getWeatherCode() {
-        return weatherCode;
+    public String getWeatherCondition() {
+        return weatherCondition;
     }
 
     @Override
@@ -57,4 +61,5 @@ public class Weather {
                 ", date=" + date +
                 '}';
     }
+
 }
