@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class DataStorage implements Serializable {
 
-    private String cityName;
+    private final String cityName;
 
     public DataStorage(String cityName) {
         this.cityName = cityName;
@@ -12,9 +12,5 @@ public class DataStorage implements Serializable {
 
     public String getCityName() {
         return cityName;
-    }
-
-    public void setCityName(String cityName) {
-        this.cityName = cityName;
     }
 }

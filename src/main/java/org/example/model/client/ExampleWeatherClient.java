@@ -1,6 +1,8 @@
 package org.example.model.client;
 
 import org.example.model.Weather;
+import org.example.model.exceptions.LocationNotFoundException;
+import org.example.model.exceptions.WeatherFetchException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,10 +18,10 @@ import java.util.Scanner;
 public class ExampleWeatherClient implements WeatherClient {
 
     @Override
-    public List<Weather> getWeeklyWeather(String cityName) {
+    public List<Weather> getWeeklyWeather(String cityName) throws LocationNotFoundException, WeatherFetchException {
         JSONArray locationData = getLocationData(cityName);
-        if (locationData == null || locationData.isEmpty()) {
-            throw new RuntimeException("Error: Unable to retrieve location data for " + cityName);
+        if (locationData.isEmpty()) {
+            throw new LocationNotFoundException("Location not found for city: " + cityName);
         }
 
         JSONObject location = (JSONObject) locationData.get(0);
@@ -34,7 +36,7 @@ public class ExampleWeatherClient implements WeatherClient {
         try {
             HttpURLConnection conn = fetchApiResponse(urlString);
             if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Error: Could not connect to weather API");
+                throw new WeatherFetchException("Error: Could not connect to weather API");
             }
 
             StringBuilder resultJson = new StringBuilder();
@@ -63,19 +65,21 @@ public class ExampleWeatherClient implements WeatherClient {
 
             return weeklyWeather;
 
+        } catch (IOException e) {
+            throw new WeatherFetchException("Error fetching weather data: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new RuntimeException("Error fetching weather data: " + e.getMessage(), e);
+            throw new WeatherFetchException("Unexpected error while fetching weather data: " + e.getMessage(), e);
         }
     }
 
-    private static JSONArray getLocationData(String cityName) {
+    private static JSONArray getLocationData(String cityName) throws LocationNotFoundException {
         cityName = cityName.replaceAll(" ", "+");
         String urlString = "https://geocoding-api.open-meteo.com/v1/search?name=" +
                 cityName + "&count=10&language=en&format=json";
         try {
             HttpURLConnection conn = fetchApiResponse(urlString);
             if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Error: Could not connect to geocoding API");
+                throw new LocationNotFoundException("Error: Could not connect to geocoding API");
             }
 
             StringBuilder resultJson = new StringBuilder();
@@ -89,23 +93,25 @@ public class ExampleWeatherClient implements WeatherClient {
             JSONParser parser = new JSONParser();
             JSONObject resultsJsonObj = (JSONObject) parser.parse(resultJson.toString());
 
-            return (JSONArray) resultsJsonObj.get("results");
+            JSONArray results = (JSONArray) resultsJsonObj.get("results");
+            if (results == null || results.isEmpty()) {
+                throw new LocationNotFoundException("No location data found for: " + cityName);
+            }
+            return results;
 
+        } catch (IOException e) {
+            throw new LocationNotFoundException("Error connecting to geocoding API: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new RuntimeException("Error fetching location data: " + e.getMessage(), e);
+            throw new LocationNotFoundException("Error fetching location data: " + e.getMessage(), e);
         }
     }
 
-    private static HttpURLConnection fetchApiResponse(String urlString) {
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
-            return conn;
-        } catch (IOException e) {
-            throw new RuntimeException("Error connecting to API: " + e.getMessage(), e);
-        }
+    private static HttpURLConnection fetchApiResponse(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+        return conn;
     }
 
     private static String convertWeatherCode(long weatherCode) {

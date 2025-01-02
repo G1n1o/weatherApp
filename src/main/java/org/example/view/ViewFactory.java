@@ -5,21 +5,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.controller.BaseController;
-import org.example.controller.MainViewController;
-import org.example.controller.WindowController;
+import org.example.controller.MainWindowController;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class ViewFactory {
 
-    public void showMainView() {
-        System.out.println("show mainView window called");
-        BaseController controller = new MainViewController(this, "/view/MainView.fxml");
-        initializeStage(controller);
-    }
     public void showWindow() {
         System.out.println("show window called");
-        BaseController controller = new WindowController(this, "/view/Window.fxml");
+        BaseController controller = new MainWindowController(this, "/view/MainWindow.fxml");
         initializeStage(controller);
     }
 
@@ -38,7 +33,7 @@ public class ViewFactory {
         Scene scene = new Scene(parent);
         Stage stage = new Stage();
 
-        scene.getStylesheets().add(getClass().getResource("/view/css/styles.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/view/css/styles.css")).toExternalForm());
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();

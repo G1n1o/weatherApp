@@ -1,7 +1,6 @@
 package org.example.model;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.Objects;
@@ -10,7 +9,7 @@ public class Weather {
 
     private final String cityName;
     private final double tempInCelsius;
-    private LocalDate date;
+    private final LocalDate date;
     private final String weatherCondition;
 
 
@@ -20,10 +19,6 @@ public class Weather {
         this.tempInCelsius = tempInCelsius;
         this.date = date;
         this.weatherCondition = weatherCondition;
-    }
-
-    public String getCityName() {
-        return cityName;
     }
 
     public double getTempInCelsius() {

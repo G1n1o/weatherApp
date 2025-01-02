@@ -106,7 +106,7 @@
                   </ImageView>
                </graphic>
             </Button>
-            <Label fx:id="destinatonCityName" alignment="CENTER_RIGHT" contentDisplay="CENTER" layoutX="572.0" layoutY="6.0" prefHeight="81.0" prefWidth="206.0" textFill="WHITE">
+            <Label fx:id="destinationCityName" alignment="CENTER_RIGHT" contentDisplay="CENTER" layoutX="572.0" layoutY="6.0" prefHeight="81.0" prefWidth="206.0" textFill="WHITE">
                <font>
                   <Font size="24.0" />
                </font>

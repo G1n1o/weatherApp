@@ -3,8 +3,6 @@ package org.example.controller;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -20,8 +18,8 @@ import org.example.model.DataStorage;
 import org.example.model.Weather;
 import org.example.model.WeatherService;
 import org.example.model.WeatherServiceFactory;
+import org.example.model.exceptions.LocationNotFoundException;
 import org.example.view.ViewFactory;
-
 import java.io.*;
 import java.net.URL;
 import java.time.LocalDate;
@@ -32,7 +30,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class WindowController extends BaseController implements Initializable {
+public class MainWindowController extends BaseController implements Initializable {
 
     @FXML
     private VBox body;
@@ -61,7 +59,7 @@ public class WindowController extends BaseController implements Initializable {
     private Label startLabel;
 
     @FXML
-    private Label destinatonCityName;
+    private Label destinationCityName;
 
     @FXML
     private ImageView todayImage;
@@ -80,7 +78,7 @@ public class WindowController extends BaseController implements Initializable {
 
     private WeatherService weatherService;
 
-    public WindowController(ViewFactory viewFactory, String fxmlName) {
+    public MainWindowController(ViewFactory viewFactory, String fxmlName) {
         super(viewFactory, fxmlName);
     }
 
@@ -102,9 +100,7 @@ public class WindowController extends BaseController implements Initializable {
             ois.close();
             cityName.setText(dStorage.getCityName());
 
-        }catch (IOException e) {
-            e.printStackTrace();
-        }catch (ClassNotFoundException e) {
+        }catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -112,19 +108,15 @@ public class WindowController extends BaseController implements Initializable {
             cityValidationAndTakeWeather(cityName.getText(), weeklyForecastContainer);
         }
 
-        cityNameField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (!newValue.isEmpty()) {
-                    saveButton.setDisable(false);
-                }
+        cityNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                saveButton.setDisable(false);
             }
         });
     }
 
     @FXML
     void takeWeather() {
-        System.out.println("Click");
         String inputCity = cityNameField.getText().trim();
         if (inputCity.isEmpty()) {
             errorLabel.setText("City name is empty. Please enter a valid city name.");
@@ -133,6 +125,7 @@ public class WindowController extends BaseController implements Initializable {
 
         errorLabel.setText("");
 
+        // Attempt to fetch weather data and handle errors
         if(cityValidationAndTakeWeather(cityNameField.getText(), weeklyForecastContainer)){
             cityName.setText(inputCity);
             cityNameField.clear();
@@ -143,30 +136,36 @@ public class WindowController extends BaseController implements Initializable {
 
     @FXML
     void destiantionSearch() {
+
+        // Handle destination search with error handling
                 if(cityValidationAndTakeWeather(destinationCityNameField.getText(),destinationForecast)) {
-                    destinatonCityName.setText(destinationCityNameField.getText());
+                    destinationCityName.setText(destinationCityNameField.getText());
                     destinationCityNameField.clear();
                 }
     }
 
     private boolean cityValidationAndTakeWeather(String cityName, HBox container) {
-
         try {
             List<Weather> weeklyWeather = weatherService.getWeeklyWeather(cityName);
             if (weeklyWeather == null || weeklyWeather.isEmpty()) {
-                System.out.println("Error: Weather data could not be retrieved.");
-                errorLabel.setText("No data available for this location. Try another location");
+                errorLabel.setText("No data available for this location. Try another location.");
                 return false;
             }
             createWeatherForecastView(weeklyWeather, container);
-
-        } catch (Exception e) {
+        } catch (LocationNotFoundException e) {
+            errorLabel.setText("Location not found. Please enter a valid city.");
+            System.err.println("Location not found: " + e.getMessage());
+            return false;
+        } catch (RuntimeException e) {
             errorLabel.setText("Error fetching weather data. Please try again.");
-            System.err.println("Error fetching weather data: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Runtime error: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            errorLabel.setText("Unexpected error occurred. Please try again.");
+            System.err.println("Unexpected error: " + e.getMessage());
             return false;
         }
-        return  true;
+        return true;
     }
 
     private void createWeatherForecastView(List<Weather> weeklyWeather, HBox container) {
@@ -190,7 +189,7 @@ public class WindowController extends BaseController implements Initializable {
                 dayRow.setPrefHeight(131.0);
                 dayRow.setPrefWidth(180.0);
 
-                ImageView weatherImage = new ImageView(new Image(forecast.getClass().getResource("/view/img/" + forecast.getWeatherCondition() + ".png").toExternalForm()));
+                ImageView weatherImage = new ImageView(new Image(Objects.requireNonNull(forecast.getClass().getResource("/view/img/" + forecast.getWeatherCondition() + ".png")).toExternalForm()));
                 weatherImage.setFitHeight(65.0);
                 weatherImage.setFitWidth(65.0);
                 weatherImage.setPickOnBounds(true);
@@ -227,7 +226,7 @@ public class WindowController extends BaseController implements Initializable {
                 dayLabel.setPrefWidth(60.0);
                 dayLabel.getStyleClass().add("days_background");
 
-                ImageView weatherImage = new ImageView(new Image(forecast.getClass().getResource("/view/img/" + forecast.getWeatherCondition() + ".png").toExternalForm()));
+                ImageView weatherImage = new ImageView(new Image(Objects.requireNonNull(forecast.getClass().getResource("/view/img/" + forecast.getWeatherCondition() + ".png")).toExternalForm()));
                 weatherImage.setFitHeight(101.0);
                 weatherImage.setFitWidth(65.0);
                 weatherImage.setPickOnBounds(true);
@@ -259,7 +258,7 @@ public class WindowController extends BaseController implements Initializable {
             errorLabel.setText("Successfully saved the name of your city");
             errorLabel.setStyle("-fx-text-fill: green;");
 
-            PauseTransition pause = new PauseTransition(Duration.seconds(3));
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
             pause.setOnFinished(event -> {
                 errorLabel.setStyle("-fx-text-fill: red;"); // Reset style
                 errorLabel.setText("");  // Clear message
