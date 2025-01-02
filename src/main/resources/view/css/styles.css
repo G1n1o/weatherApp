@@ -28,5 +28,15 @@
     -fx-alignment: center;
 }
 
+.textButton {
+    -fx-background-color: #357ed3;
+    -fx-text-fill: white;
+    -fx-border-radius: 10%;
+    -fx-outline: none;
+}
+.textButton:hover {
+    -fx-background-color:#183881;
+}
+
 
 

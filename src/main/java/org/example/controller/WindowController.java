@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -15,17 +16,20 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.example.model.DataStorage;
 import org.example.model.Weather;
 import org.example.model.WeatherService;
 import org.example.model.WeatherServiceFactory;
 import org.example.view.ViewFactory;
 
+import java.io.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class WindowController extends BaseController implements Initializable {
@@ -54,20 +58,31 @@ public class WindowController extends BaseController implements Initializable {
     private Label homeTodayTemp;
 
     @FXML
+    private Label startLabel;
+
+    @FXML
+    private Label destinatonCityName;
+
+    @FXML
     private ImageView todayImage;
 
     @FXML
     private HBox weeklyForecastContainer;
 
+    @FXML
+    private HBox destinationForecast;
 
+    @FXML
+    private Button destiantionSearchButton;
+
+    @FXML
+    private TextField destinationCityNameField;
 
     private WeatherService weatherService;
 
     public WindowController(ViewFactory viewFactory, String fxmlName) {
         super(viewFactory, fxmlName);
     }
-
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -78,10 +93,24 @@ public class WindowController extends BaseController implements Initializable {
         date.setText(formattedDate);
         startClock();
 
-        if (cityName.getText() != null && !cityName.getText().isEmpty()) {
-            cityValidationAndTakeWeather(cityName.getText());
+        try {
+            FileInputStream fis = new FileInputStream("save.dat");
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(bis);
+
+            DataStorage dStorage = (DataStorage) ois.readObject();
+            ois.close();
+            cityName.setText(dStorage.getCityName());
+
+        }catch (IOException e) {
+            e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
+        if (cityName.getText() != null && !cityName.getText().isEmpty()) {
+            cityValidationAndTakeWeather(cityName.getText(), weeklyForecastContainer);
+        }
 
         cityNameField.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -91,8 +120,6 @@ public class WindowController extends BaseController implements Initializable {
                 }
             }
         });
-
-
     }
 
     @FXML
@@ -105,35 +132,47 @@ public class WindowController extends BaseController implements Initializable {
         }
 
         errorLabel.setText("");
-        cityName.setText(inputCity);
 
-        cityValidationAndTakeWeather(cityName.getText());
+        if(cityValidationAndTakeWeather(cityNameField.getText(), weeklyForecastContainer)){
+            cityName.setText(inputCity);
+            cityNameField.clear();
+        }
 
-        cityNameField.clear();
+
     }
 
-    private void cityValidationAndTakeWeather(String cityName) {
+    @FXML
+    void destiantionSearch() {
+                if(cityValidationAndTakeWeather(destinationCityNameField.getText(),destinationForecast)) {
+                    destinatonCityName.setText(destinationCityNameField.getText());
+                    destinationCityNameField.clear();
+                }
+    }
+
+    private boolean cityValidationAndTakeWeather(String cityName, HBox container) {
 
         try {
             List<Weather> weeklyWeather = weatherService.getWeeklyWeather(cityName);
             if (weeklyWeather == null || weeklyWeather.isEmpty()) {
                 System.out.println("Error: Weather data could not be retrieved.");
                 errorLabel.setText("No data available for this location. Try another location");
-                return;
+                return false;
             }
-
-            createWeatherForecastView(weeklyWeather);
+            createWeatherForecastView(weeklyWeather, container);
 
         } catch (Exception e) {
             errorLabel.setText("Error fetching weather data. Please try again.");
             System.err.println("Error fetching weather data: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
+        return  true;
     }
 
-    private void createWeatherForecastView(List<Weather> weeklyWeather) {
+    private void createWeatherForecastView(List<Weather> weeklyWeather, HBox container) {
 
-        weeklyForecastContainer.getChildren().clear();
+        container.getChildren().clear();
+        container.setVisible(true);
 
         for (int i = 0; i < weeklyWeather.size(); i++) {
             Weather forecast = weeklyWeather.get(i);
@@ -201,13 +240,35 @@ public class WindowController extends BaseController implements Initializable {
 
                 dayBox.getChildren().addAll(dayLabel, weatherImage, tempLabel);
             }
-            weeklyForecastContainer.getChildren().add(dayBox);
+            container.getChildren().add(dayBox);
         }
     }
 
     @FXML
     void saveCity() {
-        System.out.println("Click");
+        try {
+            FileOutputStream fos = new FileOutputStream("save.dat");
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+
+            DataStorage dStorage = new DataStorage(cityName.getText());
+
+            oos.writeObject(dStorage);
+            oos.close();
+
+            errorLabel.setText("Successfully saved the name of your city");
+            errorLabel.setStyle("-fx-text-fill: green;");
+
+            PauseTransition pause = new PauseTransition(Duration.seconds(3));
+            pause.setOnFinished(event -> {
+                errorLabel.setStyle("-fx-text-fill: red;"); // Reset style
+                errorLabel.setText("");  // Clear message
+            });
+            pause.play();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         saveButton.setDisable(true);
     }
 
@@ -240,6 +301,4 @@ public class WindowController extends BaseController implements Initializable {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
-
-
 }
