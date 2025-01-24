@@ -88,11 +88,11 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.2</version>
-        <configuration>
-          <argLine>
-            -add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-          </argLine>
-        </configuration>
+<!--        <configuration>-->
+<!--          <argLine>-->
+<!--            &#45;&#45;add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED-->
+<!--          </argLine>-->
+<!--        </configuration>-->
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
