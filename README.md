@@ -14,6 +14,10 @@ This application is built in Java using JavaFX for the graphical user interface 
 
 A key feature of the application is the ability to display forecasts for two different cities at the same time, making it easy to compare weather conditions between locations. This can be particularly useful when planning trips or evaluating where to live or work.
 
+<br>
+
   <img src="images/secondCity.png"/>
+
+  <br>
 
 <img src="images/anotherCity.png"/>
