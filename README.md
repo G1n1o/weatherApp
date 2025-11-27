@@ -1,6 +1,6 @@
 # WeatherApp
 
-Aplikacja wyświetlająca pogodę na najbliższe 6 dni
+A Java application displaying a 6-day weather forecast
 
 This application is built in Java using JavaFX for the graphical user interface and Maven for project management. It provides fast and convenient access to current meteorological data. The program shows the current weather conditions along with the maximum temperature forecast for the next six days, helping users plan their day or upcoming events.
 
